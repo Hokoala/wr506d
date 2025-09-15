@@ -1,0 +1,10 @@
+api_platform:
+    title: HELLOWORLD API
+    version: 1.0.0
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+    graphql:
+        graphiql:
+            enabled: true
