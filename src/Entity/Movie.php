@@ -189,7 +189,7 @@ class Movie
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createAt = new \DateTimeImmutable();
     }
 
 }
