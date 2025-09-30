@@ -5,6 +5,8 @@ namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker;
+use DateTimeImmutable;
 use App\Entity\Actor;
 use App\Entity\Category;
 use App\Entity\Movie;
@@ -29,18 +31,15 @@ class DataFixtures extends Fixture
             $actor->setDob($fakerActors->dateTimeThisCentury());
             $actor->setPhoto($fakerActors->imageUrl($maxNbChars = 100, $indexSize = 2));
 
-
-
-
-
-            $actorsArray[] = $actor;
-
-
-
+            if ($fakerActors->boolean(45)) {
+                $dob = $actor->getDob();
+                $actor->setDod($fakerActors->dateTimeBetween($dob,'now'));
+            }
             $manager->persist($actor);
 
-
         }
+
+
 
 
         $fakerMovie = \Faker\Factory::create();
@@ -55,9 +54,6 @@ class DataFixtures extends Fixture
 
             echo $item. ' ---- '.$fakerMovie->movieGenre."\n";
 
-
-
-
             $categoryName = $fakerMovie->movieGenre;
             if (!in_array($categoryName, $categoryArray)) {
                 $category = new Category();
@@ -66,30 +62,20 @@ class DataFixtures extends Fixture
                 $categoryArray[] = $categoryName;
             };
 
-
-
-
-
             $durationMin = 60 * 60;
             $durationMax = 270 * 60;
 
+
+
+
             $movie->setName($item);
+
             $movie->setDescription($fakerMovie->realText($maxNbChars = 100, $indexSize = 2));
             $movie->setDuration($fakerMovie->numberBetween($durationMin , $durationMax ));
             $movie->setReleaseDate($fakerMovie->dateTimeThisCentury());
-
-
-
-            //--- assigne actor this movie
-
-            shuffle($actorsArray);
-            foreach (array_slice($actorsArray, 2, rand(2,6)) as $item) {
-                $movie->addActor($item);
-
-
-            }
-
+            $movie->setImage($fakerMovie->imageUrl($width = 400, $height = 600));
             $manager->persist($movie);
+
 
 
         }

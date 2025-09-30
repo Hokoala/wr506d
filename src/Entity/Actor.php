@@ -11,10 +11,19 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['lastname' => 'start', 'firstname' => 'start'])]
+#[ApiFilter(DateFilter::class, properties: ['dod'])]
+#[ApiFilter(ExistsFilter::class, properties: ['dob'])]
+
 class Actor
 {
     #[ORM\Id]
@@ -31,8 +40,11 @@ class Actor
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $dob = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $dod = null;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dod = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $bio = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $photo = null;
@@ -92,12 +104,12 @@ class Actor
         return $this;
     }
 
-    public function getDod(): ?string
+    public function getDod(): ?\DateTime
     {
         return $this->dod;
     }
 
-    public function setDod(?string $dod): static
+    public function setDod(?\DateTime $dod): static
     {
         $this->dod = $dod;
 
@@ -112,6 +124,19 @@ class Actor
     public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
+
+        return $this;
+    }
+
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio;
 
         return $this;
     }
@@ -156,7 +181,5 @@ class Actor
         $this->createAt = new \DateTimeImmutable();
     }
 
-    public function setBio(string $realText)
-    {
-    }
+
 }
