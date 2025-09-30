@@ -43,7 +43,7 @@ class Actor
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dod = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
