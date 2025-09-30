@@ -31,6 +31,7 @@ class DataFixtures extends Fixture
             $actor->setDob($fakerActors->dateTimeThisCentury());
             $actor->setPhoto($fakerActors->imageUrl($maxNbChars = 100, $indexSize = 2));
 
+
             if ($fakerActors->boolean(45)) {
                 $dob = $actor->getDob();
                 $actor->setDod($fakerActors->dateTimeBetween($dob,'now'));
@@ -64,8 +65,6 @@ class DataFixtures extends Fixture
 
             $durationMin = 60 * 60;
             $durationMax = 270 * 60;
-
-
 
 
             $movie->setName($item);
