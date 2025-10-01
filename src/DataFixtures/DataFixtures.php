@@ -41,6 +41,32 @@ class DataFixtures extends Fixture
         }
 
 
+        $fakerDirector = \Faker\Factory::create();
+        $fakerDirector->addProvider(new \Xylis\FakerCinema\Provider\Person($fakerDirector));
+
+        $directors = $fakerDirector->directors($gender = 'female', $count = 30, $duplicates = false);
+        $directorsArray = [];
+        foreach ($directors as $item) {
+
+            $director = new \App\Entity\Director();
+            $names = explode(' ', $item);
+            $director->setFirstName($names[0]);
+            $director->setLastName($names[1]);
+            $director->setDob($fakerDirector->dateTimeThisCentury());
+
+            if ($fakerDirector->boolean(45)) {
+                $dob = $director->getDob();
+                $director->setDod($fakerDirector->dateTimeBetween($dob,'now'));
+            }
+
+            $directorsArray[] = $director;
+
+            $manager->persist($director);
+
+
+        }
+
+
 
 
         $fakerMovie = \Faker\Factory::create();
@@ -63,6 +89,9 @@ class DataFixtures extends Fixture
                 $categoryArray[] = $categoryName;
             };
 
+
+
+
             $durationMin = 60 * 60;
             $durationMax = 270 * 60;
 
@@ -73,11 +102,19 @@ class DataFixtures extends Fixture
             $movie->setDuration($fakerMovie->numberBetween($durationMin , $durationMax ));
             $movie->setReleaseDate($fakerMovie->dateTimeThisCentury());
             $movie->setImage($fakerMovie->imageUrl($width = 400, $height = 600));
+            $movie->setUrl($fakerMovie->url($maxNbChars = 255 ));
+            $movie->setBudget($fakerMovie->randomFloat($nbMaxDecimals = 2, $min = 1000, $max = 100000000));
+            $movie->setNbEntries($fakerMovie->numberBetween($min = 0, $max = 10000));
+            $movie->setDirector($directorsArray[array_rand($directorsArray)]);
             $manager->persist($movie);
 
 
 
         }
+
+
+
+
 
         $manager->flush();
     }

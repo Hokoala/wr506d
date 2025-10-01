@@ -21,8 +21,8 @@ class Director
     #[ORM\Column(length: 255)]
     private ?string $firstname = null;
 
-    #[ORM\Column(length: 255)]
-    private ?\DateTime $dob = null;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $dob = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $dod = null;
@@ -67,12 +67,12 @@ class Director
         return $this;
     }
 
-    public function getDob(): ?string
+    public function getDob(): ?\DateTimeInterface
     {
         return $this->dob;
     }
 
-    public function setDob(string $dob): static
+    public function setDob(?\DateTimeInterface $dob): static
     {
         $this->dob = $dob;
 
