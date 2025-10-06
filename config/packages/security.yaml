@@ -11,8 +11,12 @@ security:
                 property: email
     firewalls:
         dev:
-            pattern: ^/_(profiler|wdt)
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api:
+            pattern: ^/api/
+            stateless: true
+            jwt: ~
         main:
             lazy: true
             provider: app_user_provider
@@ -22,7 +26,6 @@ security:
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
@@ -32,18 +35,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/graphql/graphiql, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
-        #- { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
-        #- { path: ^/api/docs, roles: PUBLIC_ACCESS } # Allows accessing API documentations and Swagger UI docs
-        # { path: ^/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY } # Secures all /api endpoints
 
 when@test:
     security:
-        encoders:
-            App\Entity\User:
-                algorithm: auto
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
             # important to generate secure password hashes. In tests however, secure hashes
