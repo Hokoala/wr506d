@@ -57,8 +57,7 @@ class Movie
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $releaseDate = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
+
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
@@ -86,6 +85,11 @@ class Movie
 
     #[ORM\Column(nullable: true)]
     private ?float $budget = null;
+
+    #[ORM\ManyToOne(inversedBy: 'movies')]
+    private ?MediaObject $image = null;
+
+
 
     public function __construct()
     {
@@ -146,17 +150,6 @@ class Movie
         return $this;
     }
 
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(?string $image): static
-    {
-        $this->image = $image;
-
-        return $this;
-    }
 
     public function getCreateAt(): ?\DateTimeImmutable
     {
@@ -274,6 +267,18 @@ class Movie
     public function setBudget(?float $budget): static
     {
         $this->budget = $budget;
+
+        return $this;
+    }
+
+    public function getImage(): ?MediaObject
+    {
+        return $this->image;
+    }
+
+    public function setImage(?MediaObject $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }

@@ -58,8 +58,7 @@ class Actor
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $photo = null;
+
 
     /**
      * @var Collection<int, Movie>
@@ -70,9 +69,14 @@ class Actor
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'actors')]
+    private ?MediaObject $photo = null;
+
+
     public function __construct()
     {
         $this->movies = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -124,18 +128,6 @@ class Actor
     public function setDod(?\DateTime $dod): static
     {
         $this->dod = $dod;
-
-        return $this;
-    }
-
-    public function getPhoto(): ?string
-    {
-        return $this->photo;
-    }
-
-    public function setPhoto(?string $photo): static
-    {
-        $this->photo = $photo;
 
         return $this;
     }
@@ -193,5 +185,15 @@ class Actor
         $this->createAt = new \DateTimeImmutable();
     }
 
+    public function getPhoto(): ?MediaObject
+    {
+        return $this->photo;
+    }
 
+    public function setPhoto(?MediaObject $photo): static
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
 }
