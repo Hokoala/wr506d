@@ -14,7 +14,7 @@ class MediaObjectNormalizer implements NormalizerInterface
     private const ALREADY_CALLED = 'MEDIA_OBJECT_NORMALIZER_ALREADY_CALLED';
 
     public function __construct(
-        #[Autowire(service: 'api_platform.jsonld.normalizer.item')]
+        #[Autowire(service: 'api_platform.graphql.normalizer.item')]
         private readonly NormalizerInterface $normalizer,
         private readonly StorageInterface $storage
     ) {

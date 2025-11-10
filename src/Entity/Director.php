@@ -2,12 +2,32 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\DirectorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DirectorRepository::class)]
+#[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: [
+    'lastname' => 'start',
+    'firstname' => 'start',
+    'movies.id' => 'exact'
+])]
+#[ApiFilter(DateFilter::class, properties: ['dob', 'dod'])]
+#[GetCollection]
+#[Post(security: "is_granted('ROLE_ADMIN')")]
+#[Delete(security: "is_granted('ROLE_ADMIN')")]
+#[Get(security: "is_granted('ROLE_ADMIN')")]
 class Director
 {
     #[ORM\Id]
@@ -16,15 +36,28 @@ class Director
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom est obligatoire.")]
+    #[Assert\Length(
+        min: 5,
+        max: 40,
+        minMessage: "Le nom doit contenir au moins 5 caractères.",
+        maxMessage: "Le nom ne peut pas dépasser 40 caractères."
+    )]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le prénom est obligatoire.")]
     private ?string $firstname = null;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $dob = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\LessThan("today", message: "La date de mort doit être dans le passé.")]
+    #[Assert\Expression(
+        "this.getDod() === null or this.getDod() > this.getDob()",
+        message: "La date de mort doit être après à la date de naissance."
+    )]
     private ?\DateTime $dod = null;
 
     /**
