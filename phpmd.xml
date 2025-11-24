@@ -42,12 +42,11 @@
         <exclude name="ShortVariable"/>
     </rule>
 
-    <!-- Custom Short Variable Rule - exclude $id which is standard in entities -->
+    <!-- Custom Short Variable Rule - exclude $id and $io which are standard -->
     <rule ref="rulesets/naming.xml/ShortVariable">
         <properties>
             <property name="minimum" value="3"/>
-            <property name="exceptions" value="id"/>
+            <property name="exceptions" value="id,io"/>
         </properties>
     </rule>
 </ruleset>
-
