@@ -133,7 +133,7 @@ class DataFixtures extends Fixture
                 }
 
                 // Attribution de la catégorie correspondante
-                $movie->setCategory($categories[$categoryName]);
+                $movie->addCategory($categories[$categoryName]);
 
                 $manager->persist($movie);
             }

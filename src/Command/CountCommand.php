@@ -68,12 +68,14 @@ class CountCommand extends Command
             }
         }
 
-        // Formatage de la taille totale (sans else)
-        $sizeStr = match (true) {
-            $totalSize > 1048576 => round($totalSize / 1048576, 2) . ' Mo',
-            $totalSize > 1024 => round($totalSize / 1024, 2) . ' Ko',
-            default => $totalSize . ' octets',
-        };
+        // Formatage de la taille totale
+        if ($totalSize > 1048576) {
+            $sizeStr = round($totalSize / 1048576, 2) . ' Mo';
+        } elseif ($totalSize > 1024) {
+            $sizeStr = round($totalSize / 1024, 2) . ' Ko';
+        } else {
+            $sizeStr = $totalSize . ' octets';
+        }
 
         $io->info('Nombre d\'acteurs dans la base de données : ' . $actorCount);
         $io->info('Nombre de films dans la base de données : ' . $movieCount);
