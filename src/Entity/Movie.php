@@ -14,11 +14,15 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
-
-
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use DateTime;
+use DateTimeImmutable;
+
+/**
+ * @SuppressWarnings(PHPMD.ShortVariable)
+ */
+
 #[GetCollection]
 #[Post(security: "is_granted('ROLE_ADMIN')")]
 #[Delete(security: "is_granted('ROLE_ADMIN')")]
@@ -55,12 +59,10 @@ class Movie
     private ?int $duration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTime $releaseDate = null;
-
-
+    private ?DateTime $releaseDate = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createAt = null;
+    private ?DateTimeImmutable $createAt = null;
 
     /**
      * @var Collection<int, Category>
@@ -138,12 +140,12 @@ class Movie
         return $this;
     }
 
-    public function getReleaseDate(): ?\DateTime
+    public function getReleaseDate(): ?DateTime
     {
         return $this->releaseDate;
     }
 
-    public function setReleaseDate(?\DateTime $releaseDate): static
+    public function setReleaseDate(?DateTime $releaseDate): static
     {
         $this->releaseDate = $releaseDate;
 
@@ -151,12 +153,12 @@ class Movie
     }
 
 
-    public function getCreateAt(): ?\DateTimeImmutable
+    public function getCreateAt(): ?DateTimeImmutable
     {
         return $this->createAt;
     }
 
-    public function setCreateAt(\DateTimeImmutable $createAt): static
+    public function setCreateAt(DateTimeImmutable $createAt): static
     {
         $this->createAt = $createAt;
 
@@ -220,7 +222,7 @@ class Movie
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->createAt = new \DateTimeImmutable();
+        $this->createAt = new DateTimeImmutable();
     }
 
     public function getNbEntries(): ?int
@@ -282,5 +284,4 @@ class Movie
 
         return $this;
     }
-
 }

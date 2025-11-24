@@ -1,4 +1,5 @@
 <?php
+
 // api/src/Serializer/UploadedFileDenormalizer.php
 
 namespace App\Serializer;

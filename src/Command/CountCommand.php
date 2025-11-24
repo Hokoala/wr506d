@@ -7,7 +7,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
 use App\Repository\ActorRepository;
 use App\Repository\MovieRepository;
 use App\Repository\CategoryRepository;
@@ -15,16 +14,14 @@ use App\Repository\DirectorRepository;
 
 #[AsCommand(
     name: 'app:count-command',
-    description: 'Affiche le nombre d’acteurs, de films et de catégories dans la base de données',
+    description: 'Affiche le nombre d\'acteurs, de films et de catégories dans la base de données',
 )]
 class CountCommand extends Command
 {
     private ActorRepository $actorRepository;
     private MovieRepository $movieRepository;
     private CategoryRepository $categoryRepository;
-
     private DirectorRepository $directorRepository;
-
 
     public function __construct(
         ActorRepository $actorRepository,
@@ -37,12 +34,10 @@ class CountCommand extends Command
         $this->movieRepository = $movieRepository;
         $this->categoryRepository = $categoryRepository;
         $this->directorRepository = $directorRepository;
-
     }
 
     protected function configure(): void
     {
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -72,22 +67,31 @@ class CountCommand extends Command
                 }
             }
         }
-        // Formatage de la taille totale
-        if ($totalSize > 1048576) {
-            $sizeStr = round($totalSize / 1048576, 2) . ' Mo';
-        } elseif ($totalSize > 1024) {
-            $sizeStr = round($totalSize / 1024, 2) . ' Ko';
-        } else {
-            $sizeStr = $totalSize . ' octets';
-        }
 
-        $io->info('Nombre d’acteurs dans la base de données : ' . $actorCount);
+        // Formatage de la taille totale (sans else)
+        $sizeStr = match (true) {
+            $totalSize > 1048576 => round($totalSize / 1048576, 2) . ' Mo',
+            $totalSize > 1024 => round($totalSize / 1024, 2) . ' Ko',
+            default => $totalSize . ' octets',
+        };
+
+        $io->info('Nombre d\'acteurs dans la base de données : ' . $actorCount);
         $io->info('Nombre de films dans la base de données : ' . $movieCount);
         $io->info('Nombre de catégories dans la base de données : ' . $categoryCount);
         $io->info('Nombre de réalisateurs dans la base de données : ' . $directorCount);
-        $io->info('Nombre d’images dans public/media : ' . $imageCount);
+        $io->info('Nombre d\'images dans public/media : ' . $imageCount);
         $io->info('Poids total des images dans public/media : ' . $sizeStr);
 
         return Command::SUCCESS;
+    }
+
+    private function getElementsForEntity(string $selectEntity): array
+    {
+        return match ($selectEntity) {
+            'Movie' => ['MOVIE', $this->movieRepository->count([])],
+            'Actor' => ['ACTOR', $this->actorRepository->count([])],
+            'Category' => ['CATEGORY', $this->categoryRepository->count([])],
+            default => ['DIRECTOR', $this->directorRepository->count([])],
+        };
     }
 }

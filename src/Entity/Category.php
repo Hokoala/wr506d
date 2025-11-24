@@ -12,12 +12,15 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
-
-
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use DateTime;
+use DateTimeInterface;
+use DateTimeImmutable;
 
+/**
+ * @SuppressWarnings(PHPMD.ShortVariable)
+ */
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'start'])]
@@ -44,7 +47,7 @@ class Category
     private Collection $movies;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
@@ -92,12 +95,12 @@ class Category
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -107,6 +110,6 @@ class Category
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 }
