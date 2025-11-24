@@ -4,7 +4,6 @@ namespace App\Service;
 
 use Cocur\Slugify\Slugify;
 
-
 class SlugifyService
 {
     private $slugify;
@@ -17,15 +16,6 @@ class SlugifyService
     public function slugify(string $text): string
     {
         return $this->slugify->slugify($text);
-
     }
 }
 //
-
-
-?>
-
-
-
-
-

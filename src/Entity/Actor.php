@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
@@ -14,13 +13,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
-
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+use DateTime;
+use DateTimeInterface;
+use DateTimeImmutable;
 
+/**
+ * @SuppressWarnings(PHPMD.ShortVariable)
+ */
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -40,7 +43,7 @@ class Actor
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(length: 3)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -50,10 +53,10 @@ class Actor
     private ?string $firstname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTime $dob = null;
+    private ?DateTime $dob = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $dod = null;
+    private ?DateTimeInterface $dod = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
@@ -67,7 +70,7 @@ class Actor
     private Collection $movies;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createAt = null;
+    private ?DateTimeImmutable $createAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'actors')]
     private ?MediaObject $photo = null;
@@ -76,7 +79,6 @@ class Actor
     public function __construct()
     {
         $this->movies = new ArrayCollection();
-
     }
 
     public function getId(): ?int
@@ -108,24 +110,24 @@ class Actor
         return $this;
     }
 
-    public function getDob(): ?\DateTime
+    public function getDob(): ?DateTime
     {
         return $this->dob;
     }
 
-    public function setDob(?\DateTime $dob): static
+    public function setDob(?DateTime $dob): static
     {
         $this->dob = $dob;
 
         return $this;
     }
 
-    public function getDod(): ?\DateTime
+    public function getDod(): ?DateTimeInterface
     {
         return $this->dod;
     }
 
-    public function setDod(?\DateTime $dod): static
+    public function setDod(?DateTimeInterface $dod): static
     {
         $this->dod = $dod;
 
@@ -169,11 +171,11 @@ class Actor
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeImmutable
+    public function getCreateAt(): ?DateTimeImmutable
     {
         return $this->createAt;
     }
-    public function setCreateAt(\DateTimeImmutable $createAt): static
+    public function setCreateAt(DateTimeImmutable $createAt): static
     {
         $this->createAt = $createAt;
 
@@ -182,7 +184,7 @@ class Actor
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->createAt = new \DateTimeImmutable();
+        $this->createAt = new DateTimeImmutable();
     }
 
     public function getPhoto(): ?MediaObject
