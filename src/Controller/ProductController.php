@@ -19,11 +19,11 @@ final class ProductController extends AbstractController
 
 
     #[Route('/product/{id}', name: 'app_product_view')]
-    public function view($id, SlugifyService $slugifyService): Response
+    public function view($productId, SlugifyService $slugifyService): Response
     {
         return $this->render('product/view.html.twig', [
             'listProducts' => 'Liste des produits',
-            'productId' => $id,
+            'productId' => $productId,
             'slug' => $slugifyService->slugify("T-Shirt d'Été !"),
         ]);
     }

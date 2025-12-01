@@ -42,7 +42,7 @@ class CountCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        $symfonyIO = new SymfonyStyle($input, $output);
 
         $actorCount = $this->actorRepository->count([]);
         $movieCount = $this->movieRepository->count([]);
@@ -75,23 +75,13 @@ class CountCommand extends Command
             default => $totalSize . ' octets',
         };
 
-        $io->info('Nombre d\'acteurs dans la base de données : ' . $actorCount);
-        $io->info('Nombre de films dans la base de données : ' . $movieCount);
-        $io->info('Nombre de catégories dans la base de données : ' . $categoryCount);
-        $io->info('Nombre de réalisateurs dans la base de données : ' . $directorCount);
-        $io->info('Nombre d\'images dans public/media : ' . $imageCount);
-        $io->info('Poids total des images dans public/media : ' . $sizeStr);
+        $symfonyIO->info('Nombre d\'acteurs dans la base de données : ' . $actorCount);
+        $symfonyIO->info('Nombre de films dans la base de données : ' . $movieCount);
+        $symfonyIO->info('Nombre de catégories dans la base de données : ' . $categoryCount);
+        $symfonyIO->info('Nombre de réalisateurs dans la base de données : ' . $directorCount);
+        $symfonyIO->info('Nombre d\'images dans public/media : ' . $imageCount);
+        $symfonyIO->info('Poids total des images dans public/media : ' . $sizeStr);
 
         return Command::SUCCESS;
-    }
-
-    private function getElementsForEntity(string $selectEntity): array
-    {
-        return match ($selectEntity) {
-            'Movie' => ['MOVIE', $this->movieRepository->count([])],
-            'Actor' => ['ACTOR', $this->actorRepository->count([])],
-            'Category' => ['CATEGORY', $this->categoryRepository->count([])],
-            default => ['DIRECTOR', $this->directorRepository->count([])],
-        };
     }
 }
