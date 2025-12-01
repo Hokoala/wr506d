@@ -22,3 +22,15 @@ services:
     App\State\UserPasswordHasher:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
+
+
+    Faker\Generator:
+        factory: ['Faker\Factory', 'create']
+        arguments: ['FR_FR']
+
+
+    # Rate limiter configuration
+    App\EventSubscriber\ApiRateLimitSubscriber:
+        arguments:
+            $anonymousApiLimiter: '@limiter.anonymous_api'
+            $authenticatedApiLimiter: '@limiter.authenticated_api'

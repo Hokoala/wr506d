@@ -47,6 +47,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $comments;
 
+    #[ORM\Column]
+    private ?int $limiter = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -195,6 +198,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLimiter(): ?int
+    {
+        return $this->limiter;
+    }
+
+    public function setLimiter(int $limiter): static
+    {
+        $this->limiter = $limiter;
 
         return $this;
     }
