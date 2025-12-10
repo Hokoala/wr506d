@@ -9,20 +9,26 @@ use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Director;
 use App\Entity\Movie;
-use App\Entity\MediaObject;
 use App\Entity\User;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Entity\MediaObject;
+use DateTimeImmutable;
+use Faker\Generator;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Xylis\FakerCinema\Provider\Person as CinemaProvider;
-use Xylis\FakerCinema\Provider\Movie as MovieProvider;
 
 class DataFixtures extends Fixture
 {
     private UserPasswordHasherInterface $passwordHasher;
+    private Generator $faker;
+    private FakerProviderFactory $providerFactory;
 
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
-    {
+    public function __construct(
+        UserPasswordHasherInterface $passwordHasher,
+        Generator $faker,
+        FakerProviderFactory $providerFactory
+    ) {
         $this->passwordHasher = $passwordHasher;
+        $this->faker = $faker;
+        $this->providerFactory = $providerFactory;
     }
 
     public function load(ObjectManager $manager): void
@@ -40,8 +46,8 @@ class DataFixtures extends Fixture
 
     private function loadActors(ObjectManager $manager): void
     {
-        $fakerActors = \Faker\Factory::create();
-        $fakerActors->addProvider(new CinemaProvider($fakerActors));
+        $fakerActors = clone $this->faker;
+        $fakerActors->addProvider($this->providerFactory->createCinemaProvider($fakerActors));
 
         $actorsData = $fakerActors->actors(null, 190, false);
 
@@ -58,12 +64,10 @@ class DataFixtures extends Fixture
                 $dob = $fakerActors->dateTimeThisCentury();
                 $actor->setDob($dob);
 
-                $mediaObject = new MediaObject();
-                $mediaObject->filePath = 'actors/actor_' . $fakerActors->numberBetween(1, 1000) . '.jpg';
-                $mediaObject->contentUrl = '/media/actors/actor_' . $fakerActors->numberBetween(1, 1000) . '.jpg';
-                $manager->persist($mediaObject);
-
-                $actor->setPhoto($mediaObject);
+                $actor->setPhoto($this->createMediaObject(
+                    'actors/actor_' . $fakerActors->numberBetween(1, 1000) . '.jpg',
+                    $manager
+                ));
 
                 if ($fakerActors->boolean(45)) {
                     $dod = $fakerActors->dateTimeBetween($dob, 'now');
@@ -77,8 +81,8 @@ class DataFixtures extends Fixture
 
     private function loadDirectors(ObjectManager $manager): array
     {
-        $fakerDirector = \Faker\Factory::create();
-        $fakerDirector->addProvider(new CinemaProvider($fakerDirector));
+        $fakerDirector = clone $this->faker;
+        $fakerDirector->addProvider($this->providerFactory->createCinemaProvider($fakerDirector));
 
         $directorsData = $fakerDirector->directors('female', 30, false);
         $directorsArray = [];
@@ -110,11 +114,11 @@ class DataFixtures extends Fixture
 
     private function loadMoviesWithCategories(ObjectManager $manager, array $directorsArray): array
     {
-        $fakerMovie = \Faker\Factory::create();
-        $fakerMovie->addProvider(new MovieProvider($fakerMovie));
+        $fakerMovie = clone $this->faker;
+        $fakerMovie->addProvider($this->providerFactory->createMovieProvider($fakerMovie));
 
         $categories = [];
-        $moviesArray = []; // NOUVEAU : Pour retourner les films
+        $moviesArray = [];
         $moviesData = $fakerMovie->movies(199);
 
         if ($moviesData !== null && is_array($moviesData)) {
@@ -135,12 +139,10 @@ class DataFixtures extends Fixture
                 $movie->setDuration($fakerMovie->numberBetween(60 * 60, 270 * 60));
                 $movie->setReleaseDate($fakerMovie->dateTimeThisCentury());
 
-                $movieMedia = new MediaObject();
-                $movieMedia->filePath = 'movies/movie_' . $fakerMovie->numberBetween(1, 1000) . '.jpg';
-                $movieMedia->contentUrl = '/media/movies/movie_' . $fakerMovie->numberBetween(1, 1000) . '.jpg';
-                $manager->persist($movieMedia);
-
-                $movie->setImage($movieMedia);
+                $movie->setImage($this->createMediaObject(
+                    'movies/movie_' . $fakerMovie->numberBetween(1, 1000) . '.jpg',
+                    $manager
+                ));
 
                 $movie->setUrl($fakerMovie->url());
                 $movie->setBudget($fakerMovie->randomFloat(2, 1000, 100000000));
@@ -153,17 +155,15 @@ class DataFixtures extends Fixture
                 $movie->addCategory($categories[$categoryName]);
 
                 $manager->persist($movie);
-                $moviesArray[] = $movie; // NOUVEAU : Sauvegarder le film
+                $moviesArray[] = $movie;
             }
         }
 
-        return $moviesArray; // NOUVEAU : Retourner les films
+        return $moviesArray;
     }
 
-    // NOUVEAU : Créer des utilisateurs
     private function loadUsers(ObjectManager $manager): array
     {
-        $faker = \Faker\Factory::create('fr_FR');
         $usersArray = [];
 
         // Admin
@@ -179,9 +179,9 @@ class DataFixtures extends Fixture
         // Utilisateurs normaux
         for ($i = 1; $i <= 20; $i++) {
             $user = new User();
-            $user->setEmail($faker->email());
-            $user->setFirstname($faker->firstName());
-            $user->setLastname($faker->lastName());
+            $user->setEmail($this->faker->email());
+            $user->setFirstname($this->faker->firstName());
+            $user->setLastname($this->faker->lastName());
             $user->setPassword($this->passwordHasher->hashPassword($user, 'password'));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
@@ -194,8 +194,6 @@ class DataFixtures extends Fixture
     // NOUVEAU : Créer des commentaires
     private function loadComments(ObjectManager $manager, array $moviesArray, array $usersArray): void
     {
-        $faker = \Faker\Factory::create('fr_FR');
-
         $commentTemplates = [
             "Excellent film ! Je recommande vivement.",
             "Un chef-d'œuvre du cinéma moderne.",
@@ -219,25 +217,36 @@ class DataFixtures extends Fixture
             "À voir en famille sans hésiter."
         ];
 
-        // Ajouter 5-15 commentaires par film
         foreach ($moviesArray as $movie) {
-            $numComments = $faker->numberBetween(5, 15);
+            $numComments = $this->faker->numberBetween(5, 15);
 
             for ($i = 0; $i < $numComments; $i++) {
                 $comment = new Comment();
-                $comment->setContent($faker->randomElement($commentTemplates) . ' ' . $faker->sentence());
-                $comment->setRating($faker->numberBetween(1, 5));
-                $comment->setUser($faker->randomElement($usersArray));
+                $comment->setContent($this->faker->randomElement($commentTemplates) . ' ' . $this->faker->sentence());
+                $comment->setRating($this->faker->numberBetween(1, 5));
+                $comment->setUser($this->faker->randomElement($usersArray));
                 $comment->setMovie($movie);
-
-                // Date aléatoire dans les 6 derniers mois
-                $createdAt = \DateTimeImmutable::createFromMutable(
-                    $faker->dateTimeBetween('-6 months', 'now')
-                );
-                $comment->setCreatedAt($createdAt);
+                $comment->setCreatedAt($this->createDateTimeImmutable('-6 months', 'now'));
 
                 $manager->persist($comment);
             }
         }
+    }
+
+    private function createMediaObject(string $fileName, ObjectManager $manager): MediaObject
+    {
+        $mediaObject = new MediaObject();
+        $mediaObject->filePath = $fileName;
+        $mediaObject->contentUrl = '/media/' . $fileName;
+        $manager->persist($mediaObject);
+
+        return $mediaObject;
+    }
+
+    private function createDateTimeImmutable(string $startDate, string $endDate): DateTimeImmutable
+    {
+        $dateTime = $this->faker->dateTimeBetween($startDate, $endDate);
+        $timestamp = $dateTime->getTimestamp();
+        return new DateTimeImmutable('@' . $timestamp);
     }
 }
