@@ -17,4 +17,3 @@ class FakerProviderFactory
         return new Movie($faker);
     }
 }
-

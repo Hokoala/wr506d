@@ -33,6 +33,8 @@ security:
             stateless: true
             provider: app_user_provider
             jwt: ~
+            custom_authenticators:
+                - App\Security\ApiKeyAuthenticator
 
         # Firewall pour le reste (si nécessaire)
         main:

@@ -29,6 +29,11 @@ final class ApiRateLimitSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     */
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();

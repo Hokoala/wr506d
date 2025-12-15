@@ -3,7 +3,7 @@ framework:
     rate_limiter:
         anonymous_api:
             policy: 'fixed_window'
-            limit: 3             # Au lieu de 10
+            limit: 50            # Au lieu de 10
             interval: '1 minutes'
         authenticated_api:
             policy: 'token_bucket'
