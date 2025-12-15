@@ -29,6 +29,11 @@ final class ApiRateLimitSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     */
     public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
@@ -71,8 +76,6 @@ final class ApiRateLimitSubscriber implements EventSubscriberInterface
 
 
         if ($userCustomLimit !== null && $userCustomLimit > 0 && $isAuthenticated) {
-
-
             $consumed = $limit->getLimit() - $limit->getRemainingTokens();
             $effectiveLimit = $userCustomLimit;
             $effectiveRemaining = max(0, $userCustomLimit - $consumed);
