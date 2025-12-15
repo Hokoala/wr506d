@@ -11,6 +11,9 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.LongVariable)
+ */
 final class ApiRateLimitSubscriber implements EventSubscriberInterface
 {
     public function __construct(
