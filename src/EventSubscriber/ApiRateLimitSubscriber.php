@@ -76,8 +76,6 @@ final class ApiRateLimitSubscriber implements EventSubscriberInterface
 
 
         if ($userCustomLimit !== null && $userCustomLimit > 0 && $isAuthenticated) {
-
-
             $consumed = $limit->getLimit() - $limit->getRemainingTokens();
             $effectiveLimit = $userCustomLimit;
             $effectiveRemaining = max(0, $userCustomLimit - $consumed);
