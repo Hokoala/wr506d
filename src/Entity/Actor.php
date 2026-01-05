@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\ActorRepository;
@@ -21,11 +22,36 @@ use DateTime;
 use DateTimeInterface;
 use DateTimeImmutable;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
  */
 
 #[ORM\Entity(repositoryClass: ActorRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['actor:list']]
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['actor:read']]
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['actor:read']],
+            denormalizationContext: ['groups' => ['actor:write']]
+        ),
+        new Put(
+            normalizationContext: ['groups' => ['actor:read']],
+            denormalizationContext: ['groups' => ['actor:write']]
+        ),
+        new Patch(
+            normalizationContext: ['groups' => ['actor:read']],
+            denormalizationContext: ['groups' => ['actor:write']]
+        ),
+        new Delete()
+    ]
+)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 #[ApiFilter(SearchFilter::class, properties: ['lastname' => 'start', 'firstname' => 'start'])]
@@ -50,6 +76,7 @@ class Actor
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['actor:liste', 'actor:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]

@@ -60,9 +60,9 @@ final class ApiRateLimitSubscriber implements EventSubscriberInterface
 
         // Get custom rate limit from user if available
         $userCustomLimit = null;
-        if ($isAuthenticated && method_exists($user, 'Limiter')) {
+        if ($isAuthenticated && method_exists($user, 'getLimiter')) {
+            $userCustomLimit = $user->getLimiter();
         }
-        $userCustomLimit = $user->getLimiter();
 
         // Use IP address as identifier for anonymous users, user ID for authenticated users
         $identifier = $isAuthenticated

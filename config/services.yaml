@@ -23,6 +23,10 @@ services:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
 
+    App\State\CommentUserProcessor:
+        bind:
+            $processor: '@api_platform.doctrine.orm.state.persist_processor'
+
 
     Faker\Generator:
         factory: ['Faker\Factory', 'create']

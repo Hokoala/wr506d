@@ -2,29 +2,51 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use App\Repository\UserRepository;
+use App\State\UserPasswordHasher;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ApiResource(
+    operations: [
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
+        new Get(security: "is_granted('ROLE_ADMIN') or object == user"),
+        new Post(processor: UserPasswordHasher::class),
+        new Patch(security: "is_granted('ROLE_ADMIN')", processor: UserPasswordHasher::class),
+        new Delete(security: "is_granted('ROLE_ADMIN')")
+    ],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']]
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user:read', 'user:write'])]
     private array $roles = [];
 
     /**
@@ -33,12 +55,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[Groups(['user:write'])]
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $lastname = null;
 
     /**
@@ -64,6 +89,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $apiKeyLastUsedAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $twoFactorSecret = null;
+
+    #[ORM\Column]
+    private ?bool $twoFactorEnabled = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $twoFactorBackupCodes = null;
 
     public function __construct()
     {
@@ -285,6 +319,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setApiKeyLastUsedAt(?\DateTimeImmutable $apiKeyLastUsedAt): static
     {
         $this->apiKeyLastUsedAt = $apiKeyLastUsedAt;
+
+        return $this;
+    }
+
+    public function getTwoFactorSecret(): ?string
+    {
+        return $this->twoFactorSecret;
+    }
+
+    public function setTwoFactorSecret(?string $twoFactorSecret): static
+    {
+        $this->twoFactorSecret = $twoFactorSecret;
+
+        return $this;
+    }
+
+    public function isTwoFactorEnabled(): ?bool
+    {
+        return $this->twoFactorEnabled;
+    }
+
+    public function setTwoFactorEnabled(bool $twoFactorEnabled): static
+    {
+        $this->twoFactorEnabled = $twoFactorEnabled;
+
+        return $this;
+    }
+
+    public function getTwoFactorBackupCodes(): ?array
+    {
+        return $this->twoFactorBackupCodes;
+    }
+
+    public function setTwoFactorBackupCodes(?array $twoFactorBackupCodes): static
+    {
+        $this->twoFactorBackupCodes = $twoFactorBackupCodes;
 
         return $this;
     }

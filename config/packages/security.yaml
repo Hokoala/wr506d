@@ -15,17 +15,13 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # Firewall pour l'authentification (login)
+        # Firewall pour l'authentification (login) avec 2FA
         auth:
             pattern: ^/auth
             stateless: true
             provider: app_user_provider
-            json_login:
-                check_path: /auth
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            custom_authenticators:
+                - App\Security\CustomAuthenticator
 
         # Firewall pour l'API protégée par JWT
         api:
