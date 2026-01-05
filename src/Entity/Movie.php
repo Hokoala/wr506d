@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\MovieRepository;
@@ -19,6 +20,9 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use DateTime;
 use DateTimeImmutable;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
+
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
  */
@@ -31,6 +35,29 @@ use DateTimeImmutable;
 
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['movie:list']]
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['movie:read']]
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['movie:read']],
+            denormalizationContext: ['groups' => ['movie:write']]
+        ),
+        new Put(
+            normalizationContext: ['groups' => ['movie:read']],
+            denormalizationContext: ['groups' => ['movie:write']]
+        ),
+        new Patch(
+            normalizationContext: ['groups' => ['movie:read']],
+            denormalizationContext: ['groups' => ['movie:write']]
+        ),
+        new Delete()
+    ]
+)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'start'])]
@@ -43,6 +70,7 @@ class Movie
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Groups(['movie:list', 'movie:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
