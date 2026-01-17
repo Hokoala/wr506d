@@ -72,16 +72,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $comments;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $limiter = null;
 
-    #[ORM\Column(length: 64)]
+    #[ORM\Column(length: 64, nullable: true)]
     private ?string $apiKeyHash = null;
 
     #[ORM\Column(length: 16, nullable: true)]
     private ?string $apiKeyPrefix = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $apiKeyEnabled = null;
 
     #[ORM\Column(nullable: true)]
@@ -93,7 +93,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $twoFactorSecret = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $twoFactorEnabled = null;
 
     #[ORM\Column(nullable: true)]

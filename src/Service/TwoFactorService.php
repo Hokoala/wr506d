@@ -187,9 +187,4 @@ class TwoFactorService
         $codes = $user->getTwoFactorBackupCodes();
         return $codes ? count($codes) : 0;
     }
-
-
-
-
-
 }

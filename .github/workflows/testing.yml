@@ -53,7 +53,7 @@ jobs:
               run: vendor/bin/phpcs --standard=PSR2 src/
 
             - name: Run PHPStan
-              run: vendor/bin/phpstan analyze src/
+              run: vendor/bin/phpstan analyze src/ --memory-limit=512M
 
             - name: Run PHPMD
               run: vendor/bin/phpmd src/ text phpmd.xml

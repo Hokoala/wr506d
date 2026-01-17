@@ -35,25 +35,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['actor:list']]
         ),
         new Get(
-            normalizationContext: ['groups' => ['actor:read']]
+            normalizationContext: ['groups' => ['actor:read', 'movie:list']]
         ),
         new Post(
-            normalizationContext: ['groups' => ['actor:read']],
+            normalizationContext: ['groups' => ['actor:read', 'movie:list']],
             denormalizationContext: ['groups' => ['actor:write']]
         ),
         new Put(
-            normalizationContext: ['groups' => ['actor:read']],
+            normalizationContext: ['groups' => ['actor:read', 'movie:list']],
             denormalizationContext: ['groups' => ['actor:write']]
         ),
         new Patch(
-            normalizationContext: ['groups' => ['actor:read']],
+            normalizationContext: ['groups' => ['actor:read', 'movie:list']],
             denormalizationContext: ['groups' => ['actor:write']]
         ),
         new Delete()
     ]
 )]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource]
 #[ApiFilter(SearchFilter::class, properties: ['lastname' => 'start', 'firstname' => 'start'])]
 #[ApiFilter(DateFilter::class, properties: ['dod'])]
 #[ApiFilter(ExistsFilter::class, properties: ['dob'])]
@@ -69,17 +68,20 @@ class Actor
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(length: 3)]
+    #[ORM\Column]
+    #[Groups(['actor:list', 'actor:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['actor:read', 'actor:write'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['actor:liste', 'actor:read'])]
+    #[Groups(['actor:read', 'actor:write'])]
     private ?string $firstname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['actor:read', 'actor:write'])]
     private ?DateTime $dob = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -94,6 +96,7 @@ class Actor
      * @var Collection<int, Movie>
      */
     #[ORM\ManyToMany(targetEntity: Movie::class, inversedBy: 'actors')]
+    #[Groups(['actor:read'])]
     private Collection $movies;
 
     #[ORM\Column]
@@ -111,6 +114,39 @@ class Actor
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * Nom complet (virtuel)
+     */
+    #[Groups(['actor:list', 'actor:read'])]
+    public function getFullName(): string
+    {
+        return trim($this->firstname . ' ' . $this->lastname);
+    }
+
+    /**
+     * Âge calculé (virtuel)
+     */
+    #[Groups(['actor:list'])]
+    public function getAge(): ?int
+    {
+        if ($this->dob === null) {
+            return null;
+        }
+        // Si décédé, calcule l'âge au moment du décès
+        $reference = $this->dod ?? new \DateTime();
+
+        return $this->dob->diff($reference)->y;
+    }
+
+    /**
+     * Est décédé (virtuel)
+     */
+    #[Groups(['actor:list'])]
+    public function getIsDead(): bool
+    {
+        return $this->dod !== null;
     }
 
     public function getLastname(): ?string
