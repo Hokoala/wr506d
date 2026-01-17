@@ -56,4 +56,4 @@ jobs:
               run: vendor/bin/phpstan analyze src/ --memory-limit=512M
 
             - name: Run PHPMD
-              run: vendor/bin/phpmd src/ text phpmd.xml
+              run: vendor/bin/phpmd src/ text cleancode,codesize,controversial,design

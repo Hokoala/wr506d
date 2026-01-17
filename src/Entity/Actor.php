@@ -135,7 +135,7 @@ class Actor
             return null;
         }
         // Si décédé, calcule l'âge au moment du décès
-        $reference = $this->dod ?? new \DateTime();
+        $reference = $this->dod ?? new DateTime();
 
         return $this->dob->diff($reference)->y;
     }
