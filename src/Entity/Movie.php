@@ -21,7 +21,8 @@ use DateTime;
 use DateTimeImmutable;
 
 use Symfony\Component\Serializer\Annotation\Groups;
-
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
@@ -41,52 +42,55 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['movie:list']]
         ),
         new Get(
-            normalizationContext: ['groups' => ['movie:read']]
+            normalizationContext: ['groups' => ['movie:read', 'actor:list']]
         ),
         new Post(
-            normalizationContext: ['groups' => ['movie:read']],
+            normalizationContext: ['groups' => ['movie:read', 'actor:list']],
             denormalizationContext: ['groups' => ['movie:write']]
         ),
         new Put(
-            normalizationContext: ['groups' => ['movie:read']],
+            normalizationContext: ['groups' => ['movie:read', 'actor:list']],
             denormalizationContext: ['groups' => ['movie:write']]
         ),
         new Patch(
-            normalizationContext: ['groups' => ['movie:read']],
+            normalizationContext: ['groups' => ['movie:read', 'actor:list']],
             denormalizationContext: ['groups' => ['movie:write']]
         ),
         new Delete()
     ]
 )]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'start'])]
 class Movie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['movie:list', 'movie:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Groups(['movie:list', 'movie:write'])]
+    #[Groups(['movie:list', 'movie:read', 'movie:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['movie:read', 'movie:write'])]
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
     #[Assert\Positive]
     #[Assert\Range(
         min: 1,
-        max: 100,
+        max: 500,
         notInRangeMessage: 'The duration must be between {{ min }} and {{ max }} minutes.',
-    )
-    ]
+    )]
+    #[Groups(['movie:read', 'movie:write'])]
     private ?int $duration = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['movie:list', 'movie:read', 'movie:write'])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'd/m/Y'])]
     private ?DateTime $releaseDate = null;
 
     #[ORM\Column]
@@ -96,12 +100,14 @@ class Movie
      * @var Collection<int, Category>
      */
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'movies')]
+    #[Groups(['movie:read'])]
     private Collection $categories;
 
     /**
      * @var Collection<int, Actor>
      */
     #[ORM\ManyToMany(targetEntity: Actor::class, mappedBy: 'movies')]
+    #[Groups(['movie:read'])]
     private Collection $actors;
 
     #[ORM\Column(nullable: true)]
@@ -137,6 +143,36 @@ class Movie
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * Durée formatée (virtuel)
+     */
+    #[Groups(['movie:list', 'movie:read'])]
+    public function getFormattedDuration(): ?string
+    {
+        if ($this->duration === null) {
+            return null;
+        }
+        $hours = intdiv($this->duration, 60);
+        $minutes = $this->duration % 60;
+
+        if ($hours > 0 && $minutes > 0) {
+            return "{$hours}h {$minutes}min";
+        }
+        if ($hours > 0) {
+            return "{$hours}h";
+        }
+        return "{$minutes}min";
+    }
+
+    /**
+     * Nombre d'acteurs (virtuel)
+     */
+    #[Groups(['movie:list', 'movie:read'])]
+    public function getActorCount(): int
+    {
+        return $this->actors->count();
     }
 
     public function getName(): ?string

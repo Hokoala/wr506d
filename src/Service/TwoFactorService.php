@@ -8,7 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
+use RuntimeException;
 
+/**
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ */
 class TwoFactorService
 {
     private string $issuer;
@@ -48,7 +52,7 @@ class TwoFactorService
         $secret = $user->getTwoFactorSecret();
 
         if ($secret === null) {
-            throw new \RuntimeException('User does not have a 2FA secret');
+            throw new RuntimeException('User does not have a 2FA secret');
         }
 
         $totp = TOTP::createFromSecret($secret);
@@ -187,9 +191,4 @@ class TwoFactorService
         $codes = $user->getTwoFactorBackupCodes();
         return $codes ? count($codes) : 0;
     }
-
-
-
-
-
 }

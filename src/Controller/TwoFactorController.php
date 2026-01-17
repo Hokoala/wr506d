@@ -18,7 +18,8 @@ class TwoFactorController extends AbstractController
     public function __construct(
         private TwoFactorService $twoFactorService,
         private EntityManagerInterface $entityManager
-    ) {}
+    ) {
+    }
 
     // ============================================
     // POST /api/2fa/setup
