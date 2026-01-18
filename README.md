@@ -1,4 +1,6 @@
-# WR506D - API Films
+# WR506D
+
+## Jean Michel LE TP B - mmi23e10 
 
 API REST et GraphQL pour la gestion de films, acteurs et catégories.
 
