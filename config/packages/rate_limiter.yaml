@@ -1,0 +1,11 @@
+# config/packages/rate_limiter.yaml
+framework:
+    rate_limiter:
+        anonymous_api:
+            policy: 'fixed_window'
+            limit: 500            # Au lieu de 10
+            interval: '1 minutes'
+        authenticated_api:
+            policy: 'token_bucket'
+            limit: 500        # Au lieu de 100
+            rate: { interval: '2 minutes', amount: 100 }

@@ -1,0 +1,16 @@
+api_platform:
+    title: HELLOWORLD API
+    version: 1.0.0
+    graphql:
+        graphiql:
+            enabled: false
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: [ 'Content-Type', 'Authorization', 'Origin' ]
+        throttling: false
+    formats:
+        jsonld: [ 'application/ld+json' ]
+        multipart: [ 'multipart/form-data' ]
+
+
